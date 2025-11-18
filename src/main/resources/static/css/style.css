@@ -1,0 +1,196 @@
+/* Explicação: substituição do CSS principal por um tema moderno, minimalista e responsivo.
+   Características:
+   - Tipografia moderna (Inter/system-ui)
+   - Paleta em tons de azul e branco com gradientes sutis
+   - Layout centrado e fluido, componentes (cards, forms, tabelas) padronizados
+   - Suporte para mensagens (compatível com messages.css)
+   - Transições suaves e acessibilidade básica
+*/
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+
+:root{
+  --bg: #f6f8fb;
+  --panel: #ffffff;
+  --primary: #1565c0; /* blue */
+  --primary-600: #0f4a8a;
+  --accent: linear-gradient(135deg, #1e88e5 0%, #1565c0 100%);
+  --muted: #6c7a89;
+  --danger: #c62828;
+  --success: #2e7d32;
+  --radius: 10px;
+  --shadow-sm: 0 1px 3px rgba(16,24,40,0.06);
+  --shadow-md: 0 6px 18px rgba(16,24,40,0.08);
+}
+
+html,body{height:100%;}
+html{box-sizing:border-box;font-family:Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial; font-size:16px;}
+*,*::before,*::after{box-sizing:inherit}
+body{
+  margin:0;
+  background: linear-gradient(180deg, #f8fbff 0%, var(--bg) 100%);
+  color:#0b2540;
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+}
+
+.container{
+  max-width:980px;
+  margin:32px auto;
+  padding:28px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.9), rgba(255,255,255,0.8));
+  border-radius:calc(var(--radius) - 2px);
+  box-shadow: var(--shadow-md);
+}
+
+h1,h2,h3{color:var(--primary-600); margin:0 0 14px 0; font-weight:700}
+h1{font-size:28px}
+h2{font-size:22px}
+
+/* Header / user info */
+.header-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+.header-user{font-weight:600;color:var(--muted)}
+
+/* Forms */
+form{margin-bottom:18px}
+label{display:block;margin-bottom:6px;color:var(--muted);font-weight:600}
+input[type="text"], input[type="email"], input[type="password"], select, textarea{
+  width:100%;
+  padding:10px 12px;
+  border-radius:8px;
+  border:1px solid rgba(15,20,30,0.06);
+  background: linear-gradient(180deg,#fff,#fbfdff);
+  box-shadow:var(--shadow-sm);
+  transition:box-shadow .18s ease, border-color .12s ease;
+  font-size:15px;
+}
+input:focus, textarea:focus, select:focus{
+  outline:none;border-color:var(--primary);box-shadow:0 6px 18px rgba(21,101,192,0.08);
+}
+textarea{min-height:120px}
+
+button{
+  background:var(--accent);
+  color:#fff;border:none;padding:8px 12px;border-radius:8px;cursor:pointer;font-weight:600;
+  box-shadow:0 6px 18px rgba(21,101,192,0.12);
+  transition:transform .12s ease, box-shadow .12s ease, opacity .12s ease;
+}
+button:hover{transform:translateY(-2px)}
+button:active{transform:translateY(0)}
+.btn-ghost{background:transparent;color:var(--primary);border:1px solid rgba(21,101,192,0.08)}
+
+/* Buttons and action controls (more variants) */
+.btn{display:inline-flex;align-items:center;gap:8px;padding:8px 14px;border-radius:8px;font-weight:600;border:none;cursor:pointer;background:var(--accent);color:#fff;box-shadow:0 8px 24px rgba(21,101,192,0.12);transition:transform .12s ease,box-shadow .12s ease,opacity .12s ease}
+.btn:hover{transform:translateY(-2px)}
+.btn-sm{padding:6px 10px;font-size:0.95em;border-radius:6px}
+.btn-ghost{background:transparent;color:var(--primary-600);border:1px solid rgba(21,101,192,0.12);box-shadow:none}
+.btn-danger{background:linear-gradient(90deg,#e53935,#c62828);box-shadow:0 8px 18px rgba(198,40,40,0.12)}
+.btn-link{background:transparent;color:var(--primary);padding:0;border:none;text-decoration:underline}
+
+/* Standardized panels/cards */
+.panel{background:var(--panel);padding:18px;border-radius:var(--radius);box-shadow:var(--shadow-sm);margin-bottom:18px;border:1px solid rgba(16,24,40,0.03)}
+.card-row{display:flex;flex-wrap:wrap;gap:12px}
+.card{flex:1 1 240px;background:linear-gradient(180deg, #fff, #fbfdff);padding:14px;border-radius:12px;box-shadow:var(--shadow-sm);border:1px solid rgba(10,20,40,0.03)}
+.card h3{margin:0 0 8px 0;font-size:1.05em;color:var(--primary-600)}
+
+/* List / task item visual */
+.list{display:flex;flex-direction:column;gap:10px}
+.list-item{display:flex;align-items:flex-start;justify-content:space-between;padding:12px;border-radius:10px;background:linear-gradient(180deg, rgba(255,255,255,1), rgba(248,252,255,1));border:1px solid rgba(10,20,40,0.04);box-shadow:0 4px 12px rgba(12,24,48,0.03)}
+.list-item .meta{color:var(--muted);font-size:0.95em}
+.list-item .title{font-weight:700;color:#07203a}
+.list-item pre{white-space:pre-wrap;margin:8px 0 0 0;color:#12223a}
+
+/* Table fallback styling for large datasets */
+.table-responsive{overflow-x:auto;border-radius:10px}
+.pagination{display:flex;gap:8px;margin-top:12px}
+.pagination a{padding:6px 10px;border-radius:8px;background:transparent;border:1px solid rgba(10,20,40,0.04);color:var(--primary-600);text-decoration:none}
+.pagination a.active{background:var(--primary-600);color:#fff;border-color:transparent}
+
+/* Messages - ensures compatibility with messages.css */
+.message-success{background:linear-gradient(90deg, rgba(34,197,94,0.08), rgba(20,117,187,0.04));border-left:4px solid #16a34a;padding:12px 14px;border-radius:8px;color:#064e3b}
+.message-error{background:linear-gradient(90deg, rgba(220,38,38,0.06), rgba(249,115,22,0.02));border-left:4px solid var(--danger);padding:12px 14px;border-radius:8px;color:var(--danger)}
+.errors-list{padding:12px;border-radius:8px;background:rgba(252,231,243,0.5);color:#7a1f52}
+.field-error{color:var(--danger);font-size:0.95em;margin-top:6px}
+
+/* Tables */
+table{width:100%;border-collapse:collapse;margin-top:8px}
+th,td{padding:10px 12px;text-align:left;border-bottom:1px solid rgba(10,20,40,0.04)}
+th{background:linear-gradient(90deg, rgba(21,101,192,0.06), rgba(30,136,229,0.02));color:var(--primary-600);font-weight:700}
+tr:hover td{background:linear-gradient(90deg, rgba(21,101,192,0.02), rgba(255,255,255,0.0))}
+
+/* Top navigation / header */
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:12px 18px;background:linear-gradient(90deg, rgba(255,255,255,0.8), rgba(245,250,255,0.9));border-radius:8px;margin-bottom:18px;border:1px solid rgba(16,24,40,0.03)}
+.site-title{font-size:18px;color:var(--primary-600);font-weight:700}
+.nav{display:flex;gap:10px;align-items:center}
+.nav a{padding:8px 12px;border-radius:8px;color:var(--primary-600);background:transparent;text-decoration:none;border:1px solid transparent}
+.nav a:hover{background:rgba(21,101,192,0.06);border-color:rgba(21,101,192,0.08)}
+.nav .active{background:var(--primary-600);color:#fff;border-color:transparent}
+
+/* Footer */
+.footer-fixed{margin-top:20px;padding:12px 14px;border-radius:8px;background:linear-gradient(180deg, rgba(255,255,255,0.6), rgba(248,252,255,0.8));display:flex;justify-content:space-between;align-items:center;border:1px solid rgba(16,24,40,0.02)}
+.footer-fixed .links{display:flex;gap:12px}
+.footer-fixed a{color:var(--muted);text-decoration:none}
+.footer-fixed a:hover{color:var(--primary-600);text-decoration:underline}
+
+/* Help text and clearer field labels */
+.field-label{display:block;margin-bottom:6px;color:var(--muted);font-weight:700}
+.help-text{font-size:0.9em;color:var(--muted);margin-top:6px}
+.placeholder-muted::placeholder{color:rgba(100,110,120,0.6)}
+
+/* Card subtle divider for sections */
+.section-title{font-size:1.05em;color:var(--primary-600);margin:0 0 8px 0}
+
+/* Improve spacing for forms inside panels */
+.panel form > div{margin-bottom:10px}
+
+/* Bottom navigation (compact access menu above footer, mobile-friendly) */
+.bottom-nav{display:flex;gap:8px;justify-content:center;align-items:center;margin:10px 0;padding:8px;border-radius:8px}
+.bottom-nav a{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border-radius:999px;background:transparent;border:1px solid rgba(10,20,40,0.04);color:var(--primary-600);text-decoration:none;font-weight:600}
+.bottom-nav a.primary{background:var(--primary-600);color:#fff;border-color:transparent;box-shadow:0 8px 18px rgba(21,101,192,0.08)}
+.bottom-nav a:hover{transform:translateY(-2px)}
+
+/* Fixed bottom bar on small screens */
+@media (max-width:520px){
+  .bottom-nav{position:fixed;left:12px;right:12px;bottom:12px;justify-content:space-between;padding:8px 12px;background:linear-gradient(180deg, rgba(255,255,255,0.98), rgba(248,252,255,0.98));box-shadow:var(--shadow-md);z-index:50}
+  .footer-fixed{display:none}
+}
+
+/* Responsive layout */
+@media (max-width:800px){
+  .container{padding:16px;margin:16px}
+  h1{font-size:22px}
+}
+
+/* Footer / links */
+.footer-links{margin-top:18px}
+.footer-links a{color:var(--primary);text-decoration:underline;margin-right:12px}
+
+/* Minor helpers */
+.muted{color:var(--muted)}
+.kv{font-weight:700;color:var(--muted)}
+.small{font-size:0.95em;color:var(--muted)}
+
+/* Accessibility focus ring for keyboard users */
+:focus{outline: 3px solid rgba(21,101,192,0.12);outline-offset:2px}
+
+/* Modal (explain) */
+.modal{position:fixed;left:0;top:0;right:0;bottom:0;background:rgba(2,6,23,0.45);display:flex;align-items:center;justify-content:center;z-index:200}
+.modal-content{background:var(--panel);padding:18px;border-radius:12px;max-width:720px;width:90%;box-shadow:var(--shadow-md);border:1px solid rgba(10,20,40,0.04)}
+.modal-content h3{margin:0 0 8px 0}
+.modal-content pre{white-space:pre-wrap;max-height:400px;overflow:auto;padding:8px;background:linear-gradient(180deg, #fafcff, #fff);border-radius:8px;border:1px solid rgba(10,20,40,0.03)}
+
+/* Icon styles for buttons */
+.icon{display:inline-block;vertical-align:middle;transition:transform .18s ease, opacity .12s ease;color:inherit}
+.btn .icon{margin-right:6px}
+.btn:hover .icon{transform:translateY(-2px) rotate(-6deg)}
+
+/* small pulsing for primary actions */
+@keyframes pulse {
+  0% { box-shadow: 0 6px 18px rgba(21,101,192,0.08); }
+  50% { box-shadow: 0 10px 28px rgba(21,101,192,0.12); }
+  100% { box-shadow: 0 6px 18px rgba(21,101,192,0.08); }
+}
+.btn.primary-pulse{animation: pulse 2.5s ease-in-out infinite}
+
+/* Smooth show/hide helpers (JS toggles display) */
+.fade-in{animation:fadeIn .14s ease both}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}

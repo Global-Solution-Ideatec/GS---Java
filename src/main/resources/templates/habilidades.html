@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <title data-th-text="#{menu.habilidades} + ' - ' + #{site.title}">Habilidades - IdeaTec</title>
+    <link rel="stylesheet" data-th-href="@{/css/style.css}" />
+    <link rel="stylesheet" data-th-href="@{/css/messages.css}" />
+</head>
+<body>
+<div class="container">
+    <!-- Top navigation -->
+    <div class="topbar">
+        <div class="site-title" data-th-text="#{site.title}">SmartLeader</div>
+        <nav class="nav">
+            <a data-th-href="@{/}" data-th-text="#{menu.home}">Home</a>
+            <a data-th-href="@{/dashboard}" data-th-text="#{menu.dashboard}">Dashboard</a>
+            <a data-th-href="@{/empresas}" data-th-text="#{menu.empresas}">Empresas</a>
+            <a data-th-href="@{/habilidades}" class="active" data-th-text="#{menu.habilidades}">Habilidades</a>
+            <a data-th-href="@{/usuarios}" data-th-text="#{menu.usuarios}">Usuários</a>
+            <a data-th-href="@{/recomendacoes}" data-th-text="#{menu.recomendacoes}">Recomendações</a>
+        </nav>
+    </div>
+
+    <h1 data-th-text="#{menu.habilidades}">Habilidades</h1>
+    <p>Usuário: <span data-th-text="${username}">user</span></p>
+
+    <div data-th-if="${message}" class="message-success"> <span data-th-text="${message}"></span> </div>
+    <div data-th-if="${error}" class="message-error"> <span data-th-text="${error}"></span> </div>
+    <div data-th-if="${errors}" class="errors-list">
+        <ul>
+            <li data-th-each="e : ${#maps.entries(errors)}" data-th-text="${e.key + ': ' + e.value}"></li>
+        </ul>
+    </div>
+
+    <!-- Edit form -->
+    <section data-th-if="${editHabilidade != null}" class="panel">
+        <h2 class="section-title" data-th-text="#{header.edit.habilidade}">Editar Habilidade</h2>
+        <form data-th-action="@{/api/habilidades/form/{id}(id=${editHabilidade.idHabilidade})}" method="post">
+            <input type="hidden" name="_method" value="put" />
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+                <div>
+                    <label class="field-label" for="nmHabilidade-edit" data-th-text="#{label.skill.name}">Nome da Habilidade</label>
+                    <input type="text" id="nmHabilidade-edit" name="nmHabilidade" data-th-value="${editHabilidade.nmHabilidade}" required maxlength="100" data-th-placeholder="#{placeholder.skill.example}" />
+                </div>
+                <div>
+                    <label class="field-label" for="dsNivel-edit" data-th-text="#{label.skill.level}">Nível (1-10)</label>
+                    <input type="number" id="dsNivel-edit" name="dsNivel" data-th-value="${editHabilidade.dsNivel}" min="1" max="10" />
+                </div>
+                <div style="grid-column:1 / -1">
+                    <label class="field-label" for="idUsuario-edit" data-th-text="#{label.user.name}">Atribuir ao Usuário</label>
+                    <select id="idUsuario-edit" name="idUsuario">
+                        <option value="" data-th-text="#{select.placeholder}">-- selecione --</option>
+                        <option data-th-each="u : ${usuarios}" data-th-value="${u.idUsuario}" data-th-text="${u.nmUsuario}" data-th-selected="${editHabilidade.idUsuario==u.idUsuario}"></option>
+                    </select>
+                </div>
+            </div>
+            <div style="margin-top:12px">
+                <button type="submit" class="btn" data-th-text="#{button.save}">Salvar</button>
+                <a data-th-href="@{/habilidades}" class="btn-ghost" style="margin-left:8px" data-th-text="#{button.cancel}">Cancelar</a>
+            </div>
+        </form>
+    </section>
+
+    <section class="panel">
+        <h2 class="section-title" data-th-text="#{header.create.habilidade}">Criar Habilidade</h2>
+        <form data-th-action="@{/api/habilidades/form}" method="post">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+                <div>
+                    <label class="field-label" for="nmHabilidade-new" data-th-text="#{label.skill.name}">Nome da Habilidade</label>
+                    <input type="text" id="nmHabilidade-new" name="nmHabilidade" required maxlength="100" data-th-placeholder="#{placeholder.skill.example}" />
+                </div>
+                <div>
+                    <label class="field-label" for="dsNivel-new" data-th-text="#{label.skill.level}">Nível (1-10)</label>
+                    <input type="number" id="dsNivel-new" name="dsNivel" min="1" max="10" />
+                </div>
+                <div style="grid-column:1 / -1">
+                    <label class="field-label" for="idUsuario-new" data-th-text="#{label.user.name}">Atribuir ao Usuário</label>
+                    <select id="idUsuario-new" name="idUsuario">
+                        <option value="" data-th-text="#{select.placeholder}">-- selecione --</option>
+                        <option data-th-each="u : ${usuarios}" data-th-value="${u.idUsuario}" data-th-text="${u.nmUsuario}"></option>
+                    </select>
+                </div>
+            </div>
+            <div style="margin-top:12px">
+                <button type="submit" class="btn" data-th-text="#{button.create.skill}">Criar Habilidade</button>
+            </div>
+        </form>
+    </section>
+
+    <div class="panel">
+        <div class="table-responsive">
+            <table>
+                <thead>
+                <tr>
+                    <th data-th-text="#{table.id}">ID</th>
+                    <th data-th-text="#{table.name}">Nome</th>
+                    <th data-th-text="#{table.level}">Nível</th>
+                    <th data-th-text="#{table.userId}">Usuario ID</th>
+                    <th data-th-text="#{table.actions}">Ações</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr data-th-each="h : ${habilidades}">
+                    <td data-th-text="${h.idHabilidade}"></td>
+                    <td data-th-text="${h.nmHabilidade}"></td>
+                    <td data-th-text="${h.dsNivel}"></td>
+                    <td data-th-text="${h.usuario != null ? h.usuario.idUsuario : ''}"></td>
+                    <td>
+                        <a data-th-href="@{/habilidades(editId=${h.idHabilidade})}" class="btn btn-sm" data-th-text="#{button.edit}">Editar</a>
+                        <form data-th-if="${isGestor}" data-th-action="@{/api/habilidades/delete/{id}(id=${h.idHabilidade})}" method="post" style="display:inline">
+                            <button type="submit" class="btn btn-danger btn-sm" data-th-onclick="|return confirm('${#messages.msg('confirm.delete')}')|" data-th-text="#{button.delete}">Excluir</button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer-fixed">
+        <div data-th-text="'© ' + #{site.title}">© SmartLeader</div>
+        <div class="links">
+            <a data-th-href="@{/}" data-th-text="#{menu.home}">Início</a>
+            <a data-th-href="@{/dashboard}" data-th-text="#{menu.dashboard}">Dashboard</a>
+            <a data-th-href="@{/empresas}" data-th-text="#{menu.empresas}">Empresas</a>
+            <a data-th-href="@{/usuarios}" data-th-text="#{menu.usuarios}">Usuários</a>
+        </div>
+    </div>
+
+</div>
+</body>
+</html>

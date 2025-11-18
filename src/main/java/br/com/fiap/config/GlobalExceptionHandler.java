@@ -1,0 +1,62 @@
+package br.com.fiap.config;
+
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.context.request.WebRequest;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.stereotype.Component;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Collections;
+
+// Define explicit bean name to avoid conflict with br.com.fiap.exception.GlobalExceptionHandler
+@Component("configGlobalExceptionHandler")
+@ControllerAdvice
+public class GlobalExceptionHandler {
+
+    private final MessageSource messageSource;
+
+    public GlobalExceptionHandler(MessageSource messageSource) {
+        this.messageSource = messageSource;
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<Object> handleValidationExceptions(MethodArgumentNotValidException ex, WebRequest request) {
+        Map<String, String> errors = new HashMap<>();
+        ex.getBindingResult().getAllErrors().forEach(error -> {
+            String fieldName = ((FieldError) error).getField();
+            // Resolve message via MessageSource to support i18n keys
+            String errorMessage = messageSource.getMessage(error, LocaleContextHolder.getLocale());
+            errors.put(fieldName, errorMessage);
+        });
+        return new ResponseEntity<>(errors, new HttpHeaders(), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<Object> handleDataIntegrity(DataIntegrityViolationException ex, WebRequest request) {
+        String msg = messageSource.getMessage("error.generic", null, LocaleContextHolder.getLocale());
+        // If it's a unique constraint on email we already handle in controller, but fallback here
+        return new ResponseEntity<>(Collections.singletonMap("error", msg), HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<Object> handleAccessDenied(AccessDeniedException ex, WebRequest request) {
+        String msg = messageSource.getMessage("auth.unauthorized", null, LocaleContextHolder.getLocale());
+        return new ResponseEntity<>(Collections.singletonMap("error", msg), HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<Object> handleAll(Exception ex, WebRequest request) {
+        String msg = messageSource.getMessage("error.generic", null, LocaleContextHolder.getLocale());
+        return new ResponseEntity<>(Collections.singletonMap("error", msg), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+}

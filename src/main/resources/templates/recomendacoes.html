@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <title data-th-text="#{menu.recomendacoes} + ' - ' + #{site.title}">Recomendações - IdeaTec</title>
+    <link rel="stylesheet" data-th-href="@{/css/style.css}" />
+</head>
+<body>
+<div class="container">
+    <!-- Top navigation -->
+    <div class="topbar">
+        <div class="site-title" data-th-text="#{site.title}">SmartLeader</div>
+        <nav class="nav">
+            <a data-th-href="@{/}" data-th-text="#{menu.home}">Home</a>
+            <a data-th-href="@{/dashboard}" data-th-text="#{menu.dashboard}">Dashboard</a>
+            <a data-th-href="@{/empresas}" data-th-text="#{menu.empresas}">Empresas</a>
+            <a data-th-href="@{/habilidades}" data-th-text="#{menu.habilidades}">Habilidades</a>
+            <a data-th-href="@{/usuarios}" data-th-text="#{menu.usuarios}">Usuários</a>
+            <a data-th-href="@{/recomendacoes}" class="active" data-th-text="#{menu.recomendacoes}">Recomendações</a>
+        </nav>
+    </div>
+
+    <h1 data-th-text="#{menu.recomendacoes}">Histórico de Recomendações</h1>
+    <p>Usuário: <span data-th-text="${username}">user</span></p>
+
+    <div data-th-if="${recomendacoes != null}">
+        <div class="panel">
+            <div class="list" data-th-if="${#lists.isEmpty(recomendacoes.content) == false}">
+                <div class="list-item" data-th-each="r : ${recomendacoes.content}">
+                    <div style="flex:1">
+                        <div class="title">[#<span data-th-text="${r.idRecomendacao}"></span>] <span data-th-text="${r.tpRecomendacao}"></span></div>
+                        <div class="meta" data-th-text="#{table.userId} + ': ' + (${r.usuario != null ? r.usuario.idUsuario : ''})">Usuário ID: <span data-th-text="${r.usuario != null ? r.usuario.idUsuario : ''}"></span></div>
+                        <div style="margin-top:8px"><pre data-th-text="${r.dsRecomendacao}"></pre></div>
+                        <div class="small" style="margin-top:8px"> <span data-th-text="#{table.date}">Data</span>: <span data-th-text="${r.dtRecomendacao}"></span></div>
+                    </div>
+                    <div style="display:flex;flex-direction:column;gap:8px;margin-left:12px;align-items:flex-end">
+                        <button type="button" class="btn btn-sm" data-thattr="data-id=${r.idRecomendacao}" th:attr="data-id=${r.idRecomendacao}" data-action="explain">
+                            <svg class="icon" width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm.88 15h-1.75v-1.75h1.75V17zm1.63-6.04c-.22.28-.47.5-.77.67-.3.17-.55.35-.74.54-.2.18-.3.4-.3.67v.75H11v-.75c0-.58.2-1.07.6-1.48.4-.41.96-.8 1.68-1.16.72-.36 1.2-.73 1.44-1.12.24-.39.36-.86.36-1.41 0-.86-.3-1.58-.9-2.15-.6-.57-1.4-.86-2.4-.86-1.02 0-1.82.32-2.4.96-.58.64-.87 1.45-.87 2.42H7.5c0-1.3.32-2.38.97-3.22.65-.84 1.52-1.48 2.6-1.92 1.08-.44 2.3-.66 3.66-.66 1.48 0 2.74.31 3.77.93 1.03.62 1.8 1.46 2.3 2.52.5 1.06.75 2.29.75 3.7 0 1.36-.23 2.6-.7 3.71-.47 1.11-1.16 1.99-2.06 2.63-.9.64-1.96.96-3.16.96-1.12 0-2.05-.28-2.79-.83-.74-.55-1.1-1.3-1.1-2.25h1.75c0 .35.1.64.3.86.2.22.5.33.87.33.48 0 .88-.15 1.21-.44.33-.29.56-.67.7-1.14.14-.47.2-.98.2-1.52 0-.72-.14-1.28-.42-1.68z" fill="currentColor" />
+                            </svg>
+                            <span th:text="#{button.explain}">Por que?</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-responsive" data-th-if="${#lists.isEmpty(recomendacoes.content)}">
+                <table>
+                    <thead>
+                    <tr>
+                        <th data-th-text="#{table.id}">ID</th>
+                        <th data-th-text="#{table.userId}">Usuário ID</th>
+                        <th data-th-text="#{table.type}">Tipo</th>
+                        <th data-th-text="#{recomendation.justification}">Justificativa</th>
+                        <th data-th-text="#{table.date}">Data</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr data-th-each="r : ${recomendacoes.content}">
+                        <td data-th-text="${r.idRecomendacao}"></td>
+                        <td data-th-text="${r.usuario != null ? r.usuario.idUsuario : ''}"></td>
+                        <td data-th-text="${r.tpRecomendacao}"></td>
+                        <td><pre data-th-text="${r.dsRecomendacao}"></pre></td>
+                        <td data-th-text="${r.dtRecomendacao}"></td>
+                        <td><button type="button" class="btn btn-sm" th:attr="data-id=${r.idRecomendacao}" data-action="explain"> <span th:text="#{button.explain}">Por que?</span></button></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="pagination" style="margin-top:12px">
+                <span data-th-if="${recomendacoes.totalPages > 1}">
+                    <a data-th-each="i : ${#numbers.sequence(0, recomendacoes.totalPages-1)}" data-th-href="@{/recomendacoes(page=${i})}"
+                       data-th-text="${i+1}"
+                       data-th-classappend="${i == recomendacoes.number} ? ' active' : ''"></a>
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal (reutilizável) -->
+    <div id="explainModal" class="modal" style="display:none">
+        <div class="modal-content">
+            <h3 th:text="#{modal.explain.title}">Por que essa recomendação?</h3>
+            <pre id="explainContent" class="kv"></pre>
+            <div style="margin-top:12px;text-align:right">
+                <button id="closeExplain" class="btn-ghost" th:text="#{modal.explain.close}">Fechar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer-fixed">
+        <div data-th-text="'© ' + #{site.title}">© SmartLeader</div>
+        <div class="links">
+            <a data-th-href="@{/}" data-th-text="#{menu.home}">Início</a>
+            <a data-th-href="@{/dashboard}" data-th-text="#{menu.dashboard}">Dashboard</a>
+            <a data-th-href="@{/empresas}" data-th-text="#{menu.empresas}">Empresas</a>
+            <a data-th-href="@{/habilidades}" data-th-text="#{menu.habilidades}">Habilidades</a>
+        </div>
+    </div>
+
+</div>
+</body>
+</html>
+
+<script>
+// Attach explain button handlers (delegation)
+document.addEventListener('click', function(e){
+    const btn = e.target.closest('button[data-action="explain"]');
+    if (btn) {
+        const id = btn.getAttribute('data-id');
+        openExplainModal(id);
+    }
+});
+
+function openExplainModal(id) {
+    const modal = document.getElementById('explainModal');
+    const content = document.getElementById('explainContent');
+    if (!modal || !content) return;
+    content.textContent = 'Carregando...';
+    modal.style.display = 'flex';
+
+    fetch('/api/recomendacao/' + id + '/fatores', { credentials: 'same-origin' })
+        .then(async resp => {
+            if (resp.status === 200) {
+                const txt = await resp.text();
+                content.textContent = txt;
+            } else if (resp.status === 204) {
+                content.textContent = 'Sem fatores disponíveis.';
+            } else if (resp.status === 404) {
+                content.textContent = 'Recomendação não encontrada.';
+            } else {
+                const txt = await resp.text();
+                content.textContent = 'Erro: ' + resp.status + ' ' + txt;
+            }
+        }).catch(err => {
+            content.textContent = 'Erro ao buscar fatores: ' + err.message;
+        });
+}
+
+// fechar modal
+document.addEventListener('click', function(e){
+    if (e.target && e.target.id === 'closeExplain') {
+        document.getElementById('explainModal').style.display = 'none';
+    }
+});
+</script>

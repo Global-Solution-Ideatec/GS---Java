@@ -1,0 +1,42 @@
+/* New message styles to improve readability */
+.message-success {
+  color: #155724;
+  background-color: #d4edda;
+  border: 1px solid #c3e6cb;
+  padding: 8px 12px;
+  margin-bottom: 10px;
+  border-radius: 4px;
+}
+.message-error {
+  color: #721c24;
+  background-color: #f8d7da;
+  border: 1px solid #f5c6cb;
+  padding: 8px 12px;
+  margin-bottom: 10px;
+  border-radius: 4px;
+}
+.field-error {
+  color: #a71d2a;
+  font-size: 0.95em;
+  margin-top: 4px;
+}
+.errors-list {
+  color: #721c24;
+  background-color: #f8d7da;
+  padding: 8px 12px;
+  border-radius: 4px;
+  margin-bottom: 10px;
+}
+
+/* muted text variant */
+.muted {
+  color: #6c757d;
+  margin-top: 10px;
+}
+
+/* status box used by dashboard async requests */
+.request-status {
+  margin-top: 10px;
+  padding: 6px 10px;
+  border-radius: 4px;
+}

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <title data-th-text="#{site.title} + ' - ' + #{menu.home}">IdeaTec - Home</title>
+    <link rel="stylesheet" data-th-href="@{/css/style.css}" />
+</head>
+<body>
+<div class="container" style="max-width:720px">
+    <!-- Top navigation -->
+    <div class="topbar" style="margin-bottom:12px">
+        <div class="site-title" data-th-text="#{site.title}">SmartLeader</div>
+        <nav class="nav">
+            <a data-th-href="@{/}" data-th-text="#{menu.home}" class="active">Home</a>
+            <a data-th-href="@{/login}" data-th-text="#{button.login}">Entrar</a>
+            <a data-th-href="@{/dashboard}" data-th-text="#{menu.dashboard}">Dashboard</a>
+        </nav>
+    </div>
+
+    <div class="panel">
+        <h1 data-th-text="#{site.title}">IdeaTec</h1>
+        <p data-th-text="#{welcome}">Bem-vindo à solução IdeaTec — suporte para o futuro do trabalho.</p>
+        <div style="margin-top:12px;display:flex;gap:10px">
+            <a data-th-href="@{/login}" class="btn" data-th-text="#{button.login}">Entrar</a>
+            <a data-th-href="@{/dashboard}" class="btn-ghost" data-th-text="#{menu.dashboard}">Dashboard</a>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer-fixed">
+        <div data-th-text="'© ' + #{site.title}">© SmartLeader</div>
+        <div class="links">
+            <a data-th-href="@{/dashboard}" data-th-text="#{menu.dashboard}">Dashboard</a>
+            <a data-th-href="@{/recomendacoes}" data-th-text="#{menu.recomendacoes}">Recomendações</a>
+            <a data-th-href="@{/h2-console}" target="_blank" data-th-text="#{menu.h2console}">H2 Console</a>
+        </div>
+    </div>
+</div>
+</body>
+</html>

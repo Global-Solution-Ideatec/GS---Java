@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <title data-th-text="#{menu.empresas} + ' - ' + #{site.title}">Empresas - SmartLeader</title>
+    <link rel="stylesheet" data-th-href="@{/css/style.css}" />
+    <link rel="stylesheet" data-th-href="@{/css/messages.css}" />
+</head>
+<body>
+<div class="container">
+    <!-- Top navigation -->
+    <div class="topbar">
+        <div class="site-title" data-th-text="#{site.title}">SmartLeader</div>
+        <nav class="nav">
+            <a data-th-href="@{/}" data-th-text="#{menu.home}">Home</a>
+            <a data-th-href="@{/dashboard}" data-th-text="#{menu.dashboard}">Dashboard</a>
+            <a data-th-href="@{/empresas}" class="active" data-th-text="#{menu.empresas}">Empresas</a>
+            <a data-th-href="@{/habilidades}" data-th-text="#{menu.habilidades}">Habilidades</a>
+            <a data-th-href="@{/usuarios}" data-th-text="#{menu.usuarios}">Usuários</a>
+            <a data-th-href="@{/recomendacoes}" data-th-text="#{menu.recomendacoes}">Recomendações</a>
+        </nav>
+    </div>
+
+    <h1 data-th-text="#{menu.empresas}">Empresas</h1>
+    <p>Usuário: <span data-th-text="${username}">user</span></p>
+
+    <div data-th-if="${message}" class="message-success"> <span data-th-text="${message}"></span> </div>
+    <div data-th-if="${error}" class="message-error"> <span data-th-text="${error}"></span> </div>
+    <div data-th-if="${errors}" class="errors-list">
+        <ul>
+            <li data-th-each="e : ${#maps.entries(errors)}" data-th-text="${e.key + ': ' + e.value}"></li>
+        </ul>
+    </div>
+
+    <!-- Edit form (shows when editEmpresa present) -->
+    <section data-th-if="${editEmpresa != null}" class="panel">
+        <h2 class="section-title" data-th-text="#{header.edit.empresa}">Editar Empresa</h2>
+        <form data-th-action="@{/api/empresas/form/{id}(id=${editEmpresa.idEmpresa})}" method="post">
+            <input type="hidden" name="_method" value="put" />
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+                <div>
+                    <label class="field-label" for="nmEmpresa" data-th-text="#{label.company.name}">Nome da Empresa</label>
+                    <input type="text" id="nmEmpresa" name="nmEmpresa" data-th-value="${editEmpresa.nmEmpresa}" required maxlength="100" data-th-placeholder="#{placeholder.company.name}" />
+                </div>
+                <div>
+                    <label class="field-label" for="dsCnpj" data-th-text="#{label.company.cnpj}">CNPJ</label>
+                    <input type="text" id="dsCnpj" name="dsCnpj" data-th-value="${editEmpresa.dsCnpj}" maxlength="18" data-th-placeholder="#{placeholder.company.cnpj}" />
+                </div>
+                <div style="grid-column:1 / -1">
+                    <label class="field-label" for="dsPoliticaHibrida" data-th-text="#{label.hybrid.policy}">Política Híbrida</label>
+                    <input type="text" id="dsPoliticaHibrida" name="dsPoliticaHibrida" data-th-value="${editEmpresa.dsPoliticaHibrida}" maxlength="200" data-th-placeholder="#{placeholder.company.name}" />
+                    <div class="help-text" data-th-text="#{help.hybrid}">Descreva a política de trabalho híbrido da empresa (opcional).</div>
+                </div>
+            </div>
+            <div style="margin-top:12px">
+                <button type="submit" class="btn" data-th-text="#{button.save}">Salvar</button>
+                <a data-th-href="@{/empresas}" class="btn-ghost" style="margin-left:8px" data-th-text="#{button.cancel}">Cancelar</a>
+            </div>
+        </form>
+    </section>
+
+    <section class="panel">
+        <h2 class="section-title" data-th-text="#{header.create.empresa}">Criar Empresa</h2>
+        <form data-th-action="@{/api/empresas/form}" method="post">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+                <div>
+                    <label class="field-label" for="nmEmpresa-new" data-th-text="#{label.company.name}">Nome da Empresa</label>
+                    <input type="text" id="nmEmpresa-new" name="nmEmpresa" required maxlength="100" data-th-placeholder="#{placeholder.company.name}" />
+                </div>
+                <div>
+                    <label class="field-label" for="dsCnpj-new" data-th-text="#{label.company.cnpj}">CNPJ</label>
+                    <input type="text" id="dsCnpj-new" name="dsCnpj" maxlength="18" data-th-placeholder="#{placeholder.company.cnpj}" />
+                </div>
+                <div style="grid-column:1 / -1">
+                    <label class="field-label" for="dsPoliticaHibrida-new" data-th-text="#{label.hybrid.policy}">Política Híbrida</label>
+                    <input type="text" id="dsPoliticaHibrida-new" name="dsPoliticaHibrida" maxlength="200" data-th-placeholder="#{placeholder.company.name}" />
+                    <div class="help-text" data-th-text="#{help.hybrid}">Use o padrão: "X dias remoto / semana" (opcional).</div>
+                </div>
+            </div>
+            <div style="margin-top:12px">
+                <button type="submit" class="btn" data-th-text="#{button.create.company}">Criar Empresa</button>
+            </div>
+        </form>
+    </section>
+
+    <div class="panel">
+        <div class="table-responsive">
+            <table>
+                <thead>
+                <tr>
+                    <th data-th-text="#{table.id}">ID</th>
+                    <th data-th-text="#{table.name}">Nome</th>
+                    <th data-th-text="#{table.cnpj}">CNPJ</th>
+                    <th data-th-text="#{table.hybrid.policy}">Política Híbrida</th>
+                    <th data-th-text="#{table.date}">Cadastro</th>
+                    <th data-th-text="#{table.actions}">Ações</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr data-th-each="e : ${empresas}">
+                    <td data-th-text="${e.idEmpresa}"></td>
+                    <td data-th-text="${e.nmEmpresa}"></td>
+                    <td data-th-text="${e.dsCnpj}"></td>
+                    <td data-th-text="${e.dsPoliticaHibrida}"></td>
+                    <td data-th-text="${e.dtCadastro}"></td>
+                    <td>
+                        <a data-th-href="@{/empresas(editId=${e.idEmpresa})}" class="btn btn-sm" data-th-text="#{button.edit}">Editar</a>
+                        <form data-th-if="${isGestor}" data-th-action="@{/api/empresas/delete/{id}(id=${e.idEmpresa})}" method="post" style="display:inline">
+                            <button type="submit" class="btn btn-danger btn-sm" data-th-onclick="|return confirm('${#messages.msg('confirm.delete')}')|" data-th-text="#{button.delete}">Excluir</button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer-fixed">
+        <div data-th-text="'© ' + #{site.title}">© SmartLeader</div>
+        <div class="links">
+            <a data-th-href="@{/}" data-th-text="#{menu.home}">Início</a>
+            <a data-th-href="@{/dashboard}" data-th-text="#{menu.dashboard}">Dashboard</a>
+            <a data-th-href="@{/habilidades}" data-th-text="#{menu.habilidades}">Habilidades</a>
+            <a data-th-href="@{/usuarios}" data-th-text="#{menu.usuarios}">Usuários</a>
+        </div>
+    </div>
+
+</div>
+</body>
+</html>

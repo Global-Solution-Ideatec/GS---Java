@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <title data-th-text="#{menu.usuarios} + ' - ' + #{site.title}">Usuários - SmartLeader</title>
+    <link rel="stylesheet" data-th-href="@{/css/style.css}" />
+    <link rel="stylesheet" data-th-href="@{/css/messages.css}" />
+</head>
+<body>
+<div class="container">
+    <!-- Top navigation -->
+    <div class="topbar">
+        <div class="site-title" data-th-text="#{site.title}">SmartLeader</div>
+        <nav class="nav">
+            <a data-th-href="@{/}" data-th-text="#{menu.home}">Home</a>
+            <a data-th-href="@{/dashboard}" data-th-text="#{menu.dashboard}">Dashboard</a>
+            <a data-th-href="@{/empresas}" data-th-text="#{menu.empresas}">Empresas</a>
+            <a data-th-href="@{/habilidades}" data-th-text="#{menu.habilidades}">Habilidades</a>
+            <a data-th-href="@{/usuarios}" class="active" data-th-text="#{menu.usuarios}">Usuários</a>
+            <a data-th-href="@{/recomendacoes}" data-th-text="#{menu.recomendacoes}">Recomendações</a>
+        </nav>
+    </div>
+
+    <h1 data-th-text="#{menu.usuarios}">Usuários</h1>
+    <p>Usuário: <span data-th-text="${username}">user</span></p>
+
+    <div data-th-if="${message}" class="message-success"> <span data-th-text="${message}"></span> </div>
+    <div data-th-if="${error}" class="message-error"> <span data-th-text="${error}"></span> </div>
+    <div data-th-if="${errors}" class="errors-list">
+        <ul>
+            <li data-th-each="e : ${#maps.entries(errors)}" data-th-text="${e.key + ': ' + e.value}"></li>
+        </ul>
+    </div>
+
+    <!-- Edit form -->
+    <section data-th-if="${editUsuario != null}" class="panel">
+        <h2 class="section-title" data-th-text="#{header.edit.usuario}">Editar Usuário</h2>
+        <form data-th-action="@{/api/usuarios/form/{id}(id=${editUsuario.idUsuario})}" method="post">
+            <input type="hidden" name="_method" value="put" />
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+                <div>
+                    <label class="field-label" for="nmUsuario-edit" data-th-text="#{label.user.name}">Nome completo</label>
+                    <input type="text" id="nmUsuario-edit" name="nmUsuario" data-th-value="${editUsuario.nmUsuario}" required maxlength="100" data-th-placeholder="#{placeholder.task.short}" />
+                </div>
+                <div>
+                    <label class="field-label" for="dsEmail-edit" data-th-text="#{label.user.email}">E-mail</label>
+                    <input type="email" id="dsEmail-edit" name="dsEmail" data-th-value="${editUsuario.dsEmail}" required maxlength="150" data-th-placeholder="#{placeholder.email}" />
+                </div>
+                <div>
+                    <label class="field-label" for="dsSenha-edit">Senha (se quiser alterar)</label>
+                    <input type="password" id="dsSenha-edit" name="dsSenha" />
+                </div>
+                <div>
+                    <label class="field-label" for="tpUsuario-edit" data-th-text="#{label.user.role}">Perfil</label>
+                    <select id="tpUsuario-edit" name="tpUsuario">
+                        <option data-th-selected="${editUsuario.tpUsuario=='C'}" value="C" data-th-text="#{role.collaborator}">Colaborador</option>
+                        <option data-th-selected="${editUsuario.tpUsuario=='G'}" value="G" data-th-text="#{role.manager}">Gestor</option>
+                    </select>
+                </div>
+                <div style="grid-column:1 / -1">
+                    <label class="field-label" for="idEmpresa-edit" data-th-text="#{label.company.name}">Empresa</label>
+                    <select id="idEmpresa-edit" name="idEmpresa">
+                        <option value="" data-th-text="#{select.placeholder}">-- selecione --</option>
+                        <option data-th-each="e : ${empresas}" data-th-value="${e.idEmpresa}" data-th-text="${e.nmEmpresa}" data-th-selected="${editUsuario.idEmpresa!=null and editUsuario.idEmpresa==e.idEmpresa}"></option>
+                    </select>
+                </div>
+            </div>
+            <div style="margin-top:12px">
+                <button type="submit" class="btn" data-th-text="#{button.save}">Salvar</button>
+                <a data-th-href="@{/usuarios}" class="btn-ghost" style="margin-left:8px" data-th-text="#{button.cancel}">Cancelar</a>
+            </div>
+        </form>
+    </section>
+
+    <!-- Create user -->
+    <section class="panel">
+        <h2 class="section-title" data-th-text="#{header.create.usuario}">Criar Usuário</h2>
+        <form data-th-action="@{/api/usuarios/form}" method="post">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+                <div>
+                    <label class="field-label" for="nmUsuario-new" data-th-text="#{label.user.name}">Nome completo</label>
+                    <input type="text" id="nmUsuario-new" name="nmUsuario" required maxlength="100" data-th-placeholder="#{placeholder.task.short}" />
+                </div>
+                <div>
+                    <label class="field-label" for="dsEmail-new" data-th-text="#{label.user.email}">E-mail</label>
+                    <input type="email" id="dsEmail-new" name="dsEmail" required maxlength="150" data-th-placeholder="#{placeholder.email}" />
+                </div>
+                <div>
+                    <label class="field-label" for="dsSenha-new" data-th-text="#{label.user.password}">Senha</label>
+                    <input type="password" id="dsSenha-new" name="dsSenha" required minlength="6" />
+                </div>
+                <div>
+                    <label class="field-label" for="tpUsuario-new" data-th-text="#{label.user.role}">Perfil</label>
+                    <select id="tpUsuario-new" name="tpUsuario">
+                        <option value="C" data-th-text="#{role.collaborator}">Colaborador</option>
+                        <option value="G" data-th-text="#{role.manager}">Gestor</option>
+                    </select>
+                </div>
+                <div style="grid-column:1 / -1">
+                    <label class="field-label" for="idEmpresa-new" data-th-text="#{label.company.name}">Empresa</label>
+                    <select id="idEmpresa-new" name="idEmpresa">
+                        <option value="" data-th-text="#{select.placeholder}">-- selecione --</option>
+                        <option data-th-each="e : ${empresas}" data-th-value="${e.idEmpresa}" data-th-text="${e.nmEmpresa}"></option>
+                    </select>
+                </div>
+            </div>
+            <div style="margin-top:12px">
+                <button type="submit" class="btn" data-th-text="#{button.create.user}">Criar Usuário</button>
+            </div>
+        </form>
+    </section>
+
+    <div class="panel">
+        <div class="table-responsive">
+            <table>
+                <thead>
+                <tr>
+                    <th data-th-text="#{table.id}">ID</th>
+                    <th data-th-text="#{table.name}">Nome</th>
+                    <th data-th-text="#{table.email}">Email</th>
+                    <th data-th-text="#{table.type}">Tipo</th>
+                    <th data-th-text="#{table.company}">Empresa</th>
+                    <th data-th-text="#{table.actions}">Ações</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr data-th-each="u : ${usuarios}">
+                    <td data-th-text="${u.idUsuario}"></td>
+                    <td data-th-text="${u.nmUsuario}"></td>
+                    <td data-th-text="${u.dsEmail}"></td>
+                    <td data-th-text="${u.tpUsuario}"></td>
+                    <td data-th-text="${u.idEmpresa != null ? u.idEmpresa.nmEmpresa : ''}"></td>
+                    <td>
+                        <a data-th-href="@{/usuarios(editId=${u.idUsuario})}" class="btn btn-sm" data-th-text="#{button.edit}">Editar</a>
+                        <form data-th-if="${isGestor}" data-th-action="@{/api/usuarios/delete/{id}(id=${u.idUsuario})}" method="post" style="display:inline">
+                            <button type="submit" class="btn btn-danger btn-sm" data-th-onclick="|return confirm('${#messages.msg('confirm.delete')}')|" data-th-text="#{button.delete}">Excluir</button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer-fixed">
+        <div data-th-text="'© ' + #{site.title}">© SmartLeader</div>
+        <div class="links">
+            <a data-th-href="@{/}" data-th-text="#{menu.home}">Início</a>
+            <a data-th-href="@{/dashboard}" data-th-text="#{menu.dashboard}">Dashboard</a>
+            <a data-th-href="@{/empresas}" data-th-text="#{menu.empresas}">Empresas</a>
+            <a data-th-href="@{/habilidades}" data-th-text="#{menu.habilidades}">Habilidades</a>
+        </div>
+    </div>
+
+</div>
+</body>
+</html>

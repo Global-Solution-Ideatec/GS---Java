@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <title th:text="#{menu.dashboard} + ' - ' + #{site.title}">Dashboard - SmartLeader</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}" />
+    <link rel="stylesheet" th:href="@{/css/messages.css}" />
+</head>
+<body>
+<div class="container">
+    <!-- Top navigation -->
+    <div class="topbar">
+        <div class="site-title" th:text="#{site.title}">SmartLeader</div>
+        <nav class="nav">
+            <a th:href="@{/}" th:text="#{menu.home}">Home</a>
+            <a th:href="@{/dashboard}" class="active" th:text="#{menu.dashboard}">Dashboard</a>
+            <a th:href="@{/empresas}" th:text="#{menu.empresas}">Empresas</a>
+            <a th:href="@{/habilidades}" th:text="#{menu.habilidades}">Habilidades</a>
+            <a th:href="@{/usuarios}" th:text="#{menu.usuarios}">Usuários</a>
+            <a th:href="@{/recomendacoes}" th:text="#{menu.recomendacoes}">Recomendações</a>
+            <a th:href="@{/h2-console}" target="_blank" class="btn-ghost btn-sm" th:text="#{menu.h2console}">H2 Console</a>
+        </nav>
+    </div>
+
+    <h1 th:text="#{menu.dashboard}">Dashboard</h1>
+    <p><span th:text="#{welcome}">Bem-vindo</span>, <span th:text="${username}">user</span></p>
+
+    <!-- Gerar recomendação (síncrono) -->
+    <section class="panel">
+        <h2 class="section-title" th:text="#{header.recommendation.sync}">Gerar recomendação (síncrono)</h2>
+        <form th:action="@{/dashboard/recomendar}" method="post">
+            <label class="field-label" for="area" th:text="#{label.area}">Área da Tarefa</label>
+            <input class="placeholder-muted" type="text" id="area" name="area" th:placeholder="#{placeholder.area}" required />
+            <div class="help-text" th:text="#{help.area}">Use termos curtos que descrevam a área da tarefa. Ex.: "TI" ou "Relatórios"</div>
+            <div style="margin-top:10px">
+                <button type="submit" class="btn" th:text="#{button.generate}">Gerar recomendação agora</button>
+            </div>
+        </form>
+    </section>
+
+    <!-- Solicitar recomendação (assíncrono) -->
+    <section class="panel">
+        <h2 class="section-title" th:text="#{header.recommendation.async}">Solicitar recomendação (assíncrono)</h2>
+        <label class="field-label" for="areaAsync" th:text="#{label.area}">Área</label>
+        <input class="placeholder-muted" type="text" id="areaAsync" th:placeholder="#{placeholder.area}" />
+        <div class="help-text" th:text="#{help.async}">Enfileira um pedido para a IA processar em segundo plano. Você será notificado quando pronto.</div>
+        <div style="margin-top:10px">
+            <button id="requestBtn" class="btn btn-sm" th:text="#{button.request.async}">Enviar requisição assíncrona</button>
+            <div id="requestStatus" class="request-status small muted" style="margin-top:8px"></div>
+        </div>
+    </section>
+
+    <!-- Criar / Editar Tarefa -->
+    <section class="panel">
+        <h2 class="section-title" th:text="#{header.create.tarefa}">Criar nova Tarefa</h2>
+        <div th:if="${isGestor}">
+         <div th:if="${message}" class="message-success"> <span th:text="${message}"></span> </div>
+         <div th:if="${error}" class="message-error"> <span th:text="${error}"></span> </div>
+         <div th:if="${errors}" class="errors-list">
+             <ul>
+                 <li th:each="e : ${#maps.entries(errors)}" th:text="${e.key + ': ' + e.value}"></li>
+             </ul>
+         </div>
+
+        <form th:action="${editTarefa != null} ? @{/dashboard/tarefa/{id}(id=${editTarefa.idTarefa})} : @{/dashboard/tarefa}" method="post">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+                <div>
+                    <label class="field-label" for="dsTarefa" th:text="#{label.task.description}">Descrição da Tarefa</label>
+                    <input class="placeholder-muted" type="text" id="dsTarefa" name="dsTarefa" th:value="${editTarefa != null} ? ${editTarefa.dsTarefa} : ''" required maxlength="255" th:placeholder="#{placeholder.task.short}" />
+                    <div class="help-text" th:text="#{help.area}">Explique em poucas palavras o que precisa ser feito.</div>
+                    <div th:if="${errors != null and errors['dsTarefa'] != null}" class="field-error" th:text="${errors['dsTarefa']}"></div>
+                </div>
+                <div>
+                    <label class="field-label" for="dsArea" th:text="#{label.area}">Área</label>
+                    <input class="placeholder-muted" type="text" id="dsArea" name="dsArea" th:value="${editTarefa != null} ? ${editTarefa.dsArea} : ''" th:placeholder="#{placeholder.area}" />
+                    <div th:if="${errors != null and errors['dsArea'] != null}" class="field-error" th:text="${errors['dsArea']}"></div>
+                </div>
+                <div>
+                    <label class="field-label" for="stTarefa" th:text="#{label.status}">Status</label>
+                    <select id="stTarefa" name="stTarefa">
+                        <option th:selected="${editTarefa != null and editTarefa.stTarefa=='Aberta'}" value="Aberta">Aberta</option>
+                        <option th:selected="${editTarefa != null and editTarefa.stTarefa=='Em Progresso'}" value="Em Progresso">Em Progresso</option>
+                        <option th:selected="${editTarefa != null and editTarefa.stTarefa=='Concluída'}" value="Concluída">Concluída</option>
+                    </select>
+                    <div class="help-text" th:text="#{help.area}">Status inicial da tarefa.</div>
+                    <div th:if="${errors != null and errors['stTarefa'] != null}" class="field-error" th:text="${errors['stTarefa']}"></div>
+                </div>
+                <div>
+                    <label class="field-label" for="idGestor" th:text="#{label.manager}">Gestor (quem delega)</label>
+                    <select id="idGestor" name="idGestor">
+                        <option value="" th:text="#{select.placeholder}">-- selecione --</option>
+                        <option th:each="g : ${gestores}" th:value="${g.idUsuario}" th:text="${g.nmUsuario}" th:selected="${editTarefa != null and editTarefa.idGestor==g.idUsuario}"></option>
+                    </select>
+                </div>
+                <div>
+                    <label class="field-label" for="idColaborador" th:text="#{label.collaborator}">Colaborador (quem executa)</label>
+                    <select id="idColaborador" name="idColaborador">
+                        <option value="" th:text="#{select.placeholder}">-- selecione --</option>
+                        <option th:each="c : ${colaboradores}" th:value="${c.idUsuario}" th:text="${c.nmUsuario}" th:selected="${editTarefa != null and editTarefa.idColaborador==c.idUsuario}"></option>
+                    </select>
+                </div>
+            </div>
+            <div style="margin-top:12px;display:flex;align-items:center;gap:10px">
+                <button type="submit" class="btn" th:text="${editTarefa != null} ? #{button.save} : #{button.create.task}"></button>
+                <a th:if="${editTarefa != null}" th:href="@{/dashboard}" class="btn-ghost" th:text="#{button.cancel}">Cancelar</a>
+            </div>
+        </form>
+        </div>
+        <div th:unless="${isGestor}" class="muted" th:text="|Você não tem permissão para criar tarefas.|">Você não tem permissão para criar tarefas.</div>
+     </section>
+
+    <!-- Lista de Tarefas (modern list) -->
+    <section class="panel">
+        <h2 class="section-title" th:text="#{header.list.tarefas}">Lista de Tarefas</h2>
+        <div th:if="${tarefas != null}">
+            <div class="list" th:if="${#lists.isEmpty(tarefas.content) == false}">
+                <div class="list-item" th:each="t : ${tarefas.content}">
+                    <div style="flex:1">
+                        <div class="title">[#<span th:text="${t.idTarefa}"></span>] <span th:text="${t.dsTarefa}"></span></div>
+                        <div class="meta"> <span th:text="#{label.area}">Área</span>: <span th:text="${t.dsArea}"></span>  <span th:text="#{label.status}">Status</span>: <span th:text="${t.stTarefa}"></span></div>
+                        <div class="meta" style="margin-top:6px">Gestor: <span th:text="${t.idGestor}"></span>  Colaborador: <span th:text="${t.idColaborador}"></span></div>
+                        <div class="small" style="margin-top:6px" th:text="${'Criado: ' + t.dtCriacao}">Criado: <span th:text="${t.dtCriacao}"></span></div>
+                    </div>
+                    <div style="display:flex;flex-direction:column;gap:8px;margin-left:12px">
+                        <a th:href="@{/dashboard(editId=${t.idTarefa})}" class="btn btn-sm" th:text="#{button.edit}">Editar</a>
+                        <form th:if="${isGestor}" th:action="@{/dashboard/tarefa/delete/{id}(id=${t.idTarefa})}" method="post" onsubmit="return confirm('${#messages.msg('confirm.delete')}')">
+                            <button type="submit" class="btn btn-danger btn-sm" th:text="#{button.delete}">Excluir</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-responsive" th:if="${#lists.isEmpty(tarefas.content)}">
+                <table>
+                    <thead>
+                    <tr>
+                        <th th:text="#{table.id}">ID</th>
+                        <th th:text="#{table.description}">Descrição</th>
+                        <th th:text="#{label.area}">Área</th>
+                        <th th:text="#{label.status}">Status</th>
+                        <th th:text="#{label.manager}">Gestor</th>
+                        <th th:text="#{label.collaborator}">Colaborador</th>
+                        <th th:text="#{table.date}">Data</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="t : ${tarefas.content}">
+                        <td th:text="${t.idTarefa}"></td>
+                        <td th:text="${t.dsTarefa}"></td>
+                        <td th:text="${t.dsArea}"></td>
+                        <td th:text="${t.stTarefa}"></td>
+                        <td th:text="${t.idGestor}"></td>
+                        <td th:text="${t.idColaborador}"></td>
+                        <td th:text="${t.dtCriacao}"></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="pagination">
+                <span th:if="${tarefas.totalPages > 1}">
+                    <a th:each="i : ${#numbers.sequence(0, tarefas.totalPages-1)}" th:href="@{/dashboard(page=${i})}" th:text="${i+1}" th:classappend="${i == tarefas.number} ? ' active' : ''"></a>
+                </span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Recomendação gerada (quando houver) -->
+    <section th:if="${recomendacao != null}" class="panel">
+        <h3 class="section-title" th:text="#{header.recomendacao}">Recomendação</h3>
+        <p><strong th:text="#{recomendation.id}">ID:</strong> <span th:text="${recomendacao.idRecomendacao}"></span></p>
+        <p><strong th:text="#{table.userId}">Usuário ID:</strong> <span th:text="${recomendacao.idUsuario}"></span></p>
+        <p><strong th:text="#{recomendation.justification}">Justificativa:</strong></p>
+        <pre th:text="${recomendacao.dsRecomendacao}"></pre>
+        <p><strong th:text="#{table.date}">Data:</strong> <span th:text="${recomendacao.dtRecomendacao}"></span></p>
+        <div style="margin-top:10px;display:flex;gap:10px;align-items:center">
+            <button type="button" class="btn btn-sm" id="explainBtn" th:attr="data-id=${recomendacao.idRecomendacao}">
+                <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm.88 15h-1.75v-1.75h1.75V17zm1.63-6.04c-.22.28-.47.5-.77.67-.3.17-.55.35-.74.54-.2.18-.3.4-.3.67v.75H11v-.75c0-.58.2-1.07.6-1.48.4-.41.96-.8 1.68-1.16.72-.36 1.2-.73 1.44-1.12.24-.39.36-.86.36-1.41 0-.86-.3-1.58-.9-2.15-.6-.57-1.4-.86-2.4-.86-1.02 0-1.82.32-2.4.96-.58.64-.87 1.45-.87 2.42H7.5c0-1.3.32-2.38.97-3.22.65-.84 1.52-1.48 2.6-1.92 1.08-.44 2.3-.66 3.66-.66 1.48 0 2.74.31 3.77.93 1.03.62 1.8 1.46 2.3 2.52.5 1.06.75 2.29.75 3.7 0 1.36-.23 2.6-.7 3.71-.47 1.11-1.16 1.99-2.06 2.63-.9.64-1.96.96-3.16.96-1.12 0-2.05-.28-2.79-.83-.74-.55-1.1-1.3-1.1-2.25h1.75c0 .35.1.64.3.86.2.22.5.33.87.33.48 0 .88-.15 1.21-.44.33-.29.56-.67.7-1.14.14-.47.2-.98.2-1.52 0-.72-.14-1.28-.42-1.68z" fill="currentColor" />
+                </svg>
+                <span th:text="#{button.explain}">Por que?</span>
+            </button>
+        </div>
+    </section>
+
+    <!-- Modal explicativo (reutilizável) -->
+    <div id="explainModal" class="modal" style="display:none">
+        <div class="modal-content">
+            <h3 th:text="#{modal.explain.title}">Por que essa recomendação?</h3>
+            <pre id="explainContent" class="kv"></pre>
+            <div style="margin-top:12px;text-align:right">
+                <button id="closeExplain" class="btn-ghost" th:text="#{modal.explain.close}">Fechar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom navigation (compact) -->
+    <div class="bottom-nav">
+        <a th:href="@{/dashboard}" class="primary" th:text="#{menu.dashboard}">Dashboard</a>
+        <a th:href="@{/empresas}" th:text="#{menu.empresas}">Empresas</a>
+        <a th:href="@{/habilidades}" th:text="#{menu.habilidades}">Habilidades</a>
+        <a th:href="@{/usuarios}" th:text="#{menu.usuarios}">Usuários</a>
+        <a th:href="@{/recomendacoes}" th:text="#{menu.recomendacoes}">Recomendações</a>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer-fixed">
+        <div th:text="'© ' + #{site.title}">© SmartLeader</div>
+        <div class="links">
+            <a th:href="@{/}" th:text="#{menu.home}">Início</a>
+            <a th:href="@{/h2-console}" target="_blank" th:text="#{menu.h2console}">H2 Console</a>
+            <a th:href="@{/empresas}" th:text="#{menu.empresas}">Empresas</a>
+            <a th:href="@{/habilidades}" th:text="#{menu.habilidades}">Habilidades</a>
+            <a th:href="@{/recomendacoes}" th:text="#{menu.recomendacoes}">Recomendações</a>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('requestBtn').addEventListener('click', function() {
+    const area = document.getElementById('areaAsync').value;
+    const statusEl = document.getElementById('requestStatus');
+    statusEl.className = 'request-status';
+    statusEl.textContent = 'Enviando...';
+
+    fetch('/api/recomendacao/request', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'same-origin',
+        body: JSON.stringify({ area: area })
+    }).then(async resp => {
+        if (resp.status === 202) {
+            statusEl.className = 'request-status message-success';
+            statusEl.textContent = 'Requisição enfileirada com sucesso.';
+        } else if (resp.status === 200) {
+            const data = await resp.json();
+            statusEl.className = 'request-status message-success';
+            statusEl.textContent = 'Recomendação gerada (fallback síncrono): ' + (data.dsRecomendacao || JSON.stringify(data));
+        } else if (resp.status === 204) {
+            statusEl.className = 'request-status muted';
+            statusEl.textContent = 'Nenhuma recomendação disponível.';
+        } else {
+            const txt = await resp.text();
+            statusEl.className = 'request-status message-error';
+            statusEl.textContent = 'Erro: ' + resp.status + ' ' + txt;
+        }
+    }).catch(err => {
+        statusEl.className = 'request-status message-error';
+        statusEl.textContent = 'Erro na requisição: ' + err.message;
+    });
+});
+
+// Event handler para abrir modal explicando fatores
+function openExplainModal(id) {
+    const modal = document.getElementById('explainModal');
+    const content = document.getElementById('explainContent');
+    content.textContent = 'Carregando...';
+    modal.style.display = 'block';
+
+    fetch('/api/recomendacao/' + id + '/fatores', { credentials: 'same-origin' })
+        .then(async resp => {
+            if (resp.status === 200) {
+                const txt = await resp.text();
+                content.textContent = txt;
+            } else if (resp.status === 204) {
+                content.textContent = 'Sem fatores disponíveis.';
+            } else if (resp.status === 404) {
+                content.textContent = 'Recomendação não encontrada.';
+            } else {
+                const txt = await resp.text();
+                content.textContent = 'Erro: ' + resp.status + ' ' + txt;
+            }
+        }).catch(err => {
+            content.textContent = 'Erro ao buscar fatores: ' + err.message;
+        });
+}
+
+// fechar modal
+document.addEventListener('click', function(e){
+    if (e.target && e.target.id === 'closeExplain') {
+        document.getElementById('explainModal').style.display = 'none';
+    }
+});
+
+// attach listener from server-rendered button
+document.addEventListener('DOMContentLoaded', function() {
+    const explainBtn = document.getElementById('explainBtn');
+    if (explainBtn) {
+        explainBtn.addEventListener('click', function(){
+            const id = this.getAttribute('data-id');
+            openExplainModal(id);
+        });
+    }
+
+    // Atualiza botões que já existem (requestBtn handler presente anteriormente)
+});
+</script>
+
+</body>
+</html>

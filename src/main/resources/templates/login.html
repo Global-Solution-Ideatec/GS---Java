@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <title data-th-text="#{button.login} + ' - ' + #{site.title}">Login - IdeaTec</title>
+    <link rel="stylesheet" data-th-href="@{/css/style.css}" />
+    <link rel="stylesheet" data-th-href="@{/css/messages.css}" />
+</head>
+<body>
+<div class="container" style="max-width:420px">
+    <!-- Top navigation (minimal) -->
+    <div class="topbar" style="margin-bottom:16px">
+        <div class="site-title" data-th-text="#{site.title}">SmartLeader</div>
+        <nav class="nav">
+            <a data-th-href="@{/}" data-th-text="#{menu.home}">Home</a>
+            <a data-th-href="@{/login}" class="active" data-th-text="#{button.login}">Entrar</a>
+        </nav>
+    </div>
+
+    <h2 data-th-text="#{button.login}">Login</h2>
+    <section class="panel">
+        <form data-th-action="@{/login}" method="post">
+            <div>
+                <label class="field-label" for="username" data-th-text="#{label.user.email}">E-mail</label>
+                <input type="text" id="username" name="username" data-th-placeholder="#{placeholder.email}" />
+            </div>
+            <div>
+                <label class="field-label" for="password" data-th-text="#{label.user.password}">Senha</label>
+                <input type="password" id="password" name="password" data-th-placeholder="#{placeholder.password}" />
+            </div>
+            <div style="margin-top:12px">
+                <button type="submit" class="btn" data-th-text="#{button.login}">Entrar</button>
+            </div>
+            <div data-th-if="${param.error}" style="margin-top:12px">
+                <p class="message-error" data-th-text="#{auth.invalid}">Usuário ou senha inválidos.</p>
+            </div>
+        </form>
+    </section>
+    <p style="margin-top:10px"><a data-th-href="@{/}" class="btn-ghost" data-th-text="#{button.cancel}">Voltar</a></p>
+
+    <!-- Footer -->
+    <div class="footer-fixed" style="margin-top:18px">
+        <div data-th-text="'© ' + #{site.title}">© SmartLeader</div>
+        <div class="links">
+            <a data-th-href="@{/}" data-th-text="#{menu.home}">Início</a>
+            <a data-th-href="@{/dashboard}" data-th-text="#{menu.dashboard}">Dashboard</a>
+        </div>
+    </div>
+</div>
+</body>
+</html>

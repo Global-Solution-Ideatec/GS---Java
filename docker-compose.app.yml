@@ -1,0 +1,34 @@
+version: '3.8'
+
+services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: smartleader-rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    restart: unless-stopped
+
+  app:
+    build: .
+    image: smartleader-app:latest
+    container_name: smartleader-app
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_RABBITMQ_HOST=rabbitmq
+      - SPRING_RABBITMQ_PORT=5672
+      - SPRING_RABBITMQ_USERNAME=guest
+      - SPRING_RABBITMQ_PASSWORD=guest
+      # Habilita auto-start dos listeners quando estiver em container (permitir processamento assíncrono)
+      - SPRING_RABBITMQ_LISTENER_SIMPLE_AUTO_STARTUP=true
+      # Evita falha caso filas ainda não existam
+      - SPRING_RABBITMQ_LISTENER_SIMPLE_MISSING_QUEUES_FATAL=false
+      # Se quiser habilitar OpenAI, defina a variável abaixo (não inclua key no repo)
+      # - OPENAI_API_KEY=sk-xxxx
+    depends_on:
+      - rabbitmq
+    restart: unless-stopped
