@@ -43,7 +43,10 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<Object> handleDataIntegrity(DataIntegrityViolationException ex, WebRequest request) {
-        String msg = messageSource.getMessage("error.generic", null, LocaleContextHolder.getLocale());
+        String msg = messageSource.getMessage("error.generic", null, "A operation conflicts with existing data", LocaleContextHolder.getLocale());
+                if (msg == null || msg.isEmpty()) {
+                                msg = "A operation conflicts with existing data";
+                            }
         // If it's a unique constraint on email we already handle in controller, but fallback here
         return new ResponseEntity<>(Collections.singletonMap("error", msg), HttpStatus.CONFLICT);
     }
