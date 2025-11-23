@@ -43,7 +43,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<Object> handleDataIntegrity(DataIntegrityViolationException ex, WebRequest request) {
-        String msg = messageSource.getMessage("error.generic", null, "A operation conflicts with existing data", LocaleContextHolder.getLocale());
+        String msg = messageSource.getMessage("user.email.exists", null, "A operation conflicts with existing data", LocaleContextHolder.getLocale());
                 if (msg == null || msg.isEmpty()) {
                                 msg = "A operation conflicts with existing data";
                             }
@@ -59,7 +59,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Object> handleAll(Exception ex, WebRequest request) {
-        String msg = messageSource.getMessage("error.generic", null, LocaleContextHolder.getLocale());
+        String msg = messageSource.getMessage("user.email.exists", null, LocaleContextHolder.getLocale());
         return new ResponseEntity<>(Collections.singletonMap("error", msg), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }
