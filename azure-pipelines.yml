@@ -1,0 +1,81 @@
+trigger:
+  branches:
+    include:
+      - main
+      - master
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  buildConfiguration: 'Release'
+  MAVEN_CACHE_FOLDER: $(Pipeline.Workspace)/.m2/repository
+  MAVEN_OPTS: '-Dmaven.repo.local=$(MAVEN_CACHE_FOLDER)'
+
+stages:
+  - stage: Build
+    displayName: 'Build and Test'
+    jobs:
+      - job: BuildAndTest
+        displayName: 'Build, Test, and Package'
+        steps:
+          - task: UsePythonVersion@0
+            inputs:
+              versionSpec: '3.x'
+
+          - task: Maven@3
+            displayName: 'Build with Maven'
+            inputs:
+              mavenPomFile: 'pom.xml'
+              goals: 'clean verify package'
+              publishJUnitResults: true
+              testResultsFiles: '**/TEST-*.xml'
+              testResultsFormat: 'JUnit'
+              javaHomeOption: 'JDKVersion'
+              jdkVersionOption: '17'
+              mavenVersionOption: 'Default'
+              mavenAuthenticateFeed: false
+              effectivePomSkip: false
+              sonarQubeRunAnalysis: false
+
+          - task: PublishTestResults@2
+            displayName: 'Publish Test Results'
+            condition: always()
+            inputs:
+              testResultsFormat: 'JUnit'
+              testResultsFiles: '**/TEST-*.xml'
+              failTaskOnFailedTests: false
+
+          - task: PublishBuildArtifacts@1
+            displayName: 'Publish Build Artifacts'
+            inputs:
+              pathToPublish: '$(Build.ArtifactStagingDirectory)'
+              artifactName: 'drop'
+              publishLocation: 'Container'
+
+  # Stage de Deploy comentado por enquanto
+  # Ative quando tiver os recursos Azure criados
+  # - stage: Deploy
+  #   displayName: 'Deploy to Azure'
+  #   dependsOn: Build
+  #   condition: succeeded()
+  #   jobs:
+  #     - job: DeployToAzure
+  #       displayName: 'Deploy to Azure Web App'
+  #       steps:
+  #         - task: DownloadBuildArtifacts@0
+  #           displayName: 'Download Build Artifacts'
+  #           inputs:
+  #             buildType: 'current'
+  #             downloadType: 'single'
+  #             artifactName: 'drop'
+  #             downloadPath: '$(Build.ArtifactStagingDirectory)'
+  #
+  #         - task: AzureWebApp@1
+  #           displayName: 'Deploy to Web App'
+  #           inputs:
+  #             azureSubscription: 'GS-Azure-Connection'
+  #             appType: 'webAppLinux'
+  #             appName: 'gs-java-webapp'
+  #             package: '$(Build.ArtifactStagingDirectory)/**/*.jar'
+  #             deploymentMethod: 'zipDeploy'

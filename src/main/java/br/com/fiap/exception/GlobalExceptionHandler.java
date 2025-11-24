@@ -8,6 +8,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.security.access.AccessDeniedException;
 
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.ConstraintViolation;
@@ -30,15 +31,23 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<?> handleValidation(MethodArgumentNotValidException ex) {
         Locale locale = LocaleContextHolder.getLocale();
+
         Map<String, String> fieldErrors = ex.getBindingResult().getFieldErrors().stream()
-                .collect(Collectors.toMap(FieldError::getField, fe -> {
-                    String msg = fe.getDefaultMessage();
-                    try {
-                        return messageSource.getMessage(msg, fe.getArguments(), msg, locale);
-                    } catch (Exception e) {
-                        return msg;
-                    }
-                }, (a,b)->a));
+                .collect(Collectors.toMap(
+                        fe -> fe.getField() != null ? fe.getField() : "field",
+                        fe -> {
+                            String defaultMsg = fe.getDefaultMessage();
+                            String resolved;
+                            try {
+                                resolved = messageSource.getMessage(defaultMsg, fe.getArguments(), defaultMsg, locale);
+                            } catch (Exception e) {
+                                resolved = defaultMsg;
+                            }
+                            if (resolved == null) resolved = defaultMsg == null ? "" : defaultMsg;
+                            return resolved;
+                        },
+                        (a, b) -> a
+                ));
 
         Map<String, Object> body = new HashMap<>();
         body.put("timestamp", Instant.now().toString());
@@ -58,8 +67,12 @@ public class GlobalExceptionHandler {
                 },
                 cv -> {
                     String msg = cv.getMessage();
-                    try { return messageSource.getMessage(msg, null, msg, locale); } catch (Exception e) { return msg; }
-                }, (a,b)->a));
+                    try {
+                        return messageSource.getMessage(msg, null, msg, locale);
+                    } catch (Exception e) {
+                        return msg;
+                    }
+                }, (a, b) -> a));
 
         Map<String, Object> body = new HashMap<>();
         body.put("timestamp", Instant.now().toString());
@@ -71,20 +84,35 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(EntityNotFoundException.class)
     public ResponseEntity<?> handleNotFound(EntityNotFoundException ex) {
-        Map<String,Object> body = new HashMap<>();
+        Map<String, Object> body = new HashMap<>();
         body.put("timestamp", Instant.now().toString());
         body.put("status", HttpStatus.NOT_FOUND.value());
         body.put("message", ex.getMessage() == null ? "Resource not found" : ex.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(body);
     }
 
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<?> handleAccessDenied(AccessDeniedException ex) {
+        Locale locale = LocaleContextHolder.getLocale();
+        String msg;
+        try {
+            msg = messageSource.getMessage("auth.unauthorized", null, "Access Denied", locale);
+        } catch (Exception e) {
+            msg = "Access Denied";
+        }
+        Map<String, Object> body = new HashMap<>();
+        body.put("timestamp", Instant.now().toString());
+        body.put("status", HttpStatus.FORBIDDEN.value());
+        body.put("message", msg);
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(body);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<?> handleGeneral(Exception ex) {
-        Map<String,Object> body = new HashMap<>();
+        Map<String, Object> body = new HashMap<>();
         body.put("timestamp", Instant.now().toString());
         body.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
         body.put("message", ex.getMessage() != null ? ex.getMessage() : "Internal server error");
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(body);
     }
 }
-
