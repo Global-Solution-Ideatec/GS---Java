@@ -18,6 +18,12 @@ import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.authentication.AuthenticationProvider;
 import static org.springframework.security.config.Customizer.withDefaults;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.web.access.AccessDeniedHandler;
+
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 // Damos um nome explícito ao bean de configuração para evitar conflito com outra classe SecurityConfig
 @Configuration("configSecurityConfig")
@@ -41,6 +47,18 @@ public class SecurityConfig {
         provider.setUserDetailsService(userDetailsService);
         provider.setPasswordEncoder(passwordEncoder);
         return provider;
+    }
+
+    @Bean
+    public AccessDeniedHandler accessDeniedHandler() {
+        return new AccessDeniedHandler() {
+            @Override
+            public void handle(HttpServletRequest request, HttpServletResponse response, org.springframework.security.access.AccessDeniedException accessDeniedException) throws IOException, ServletException {
+                response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                response.setContentType("application/json");
+                response.getWriter().write("{\"message\":\"Access Denied\", \"status\":403}");
+            }
+        };
     }
 
     @Bean
@@ -69,6 +87,9 @@ public class SecurityConfig {
         // JWT filter for APIs
         JwtAuthenticationFilter jwtAuthenticationFilter = new JwtAuthenticationFilter(jwtUtil, userDetailsService);
         http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+
+        // Custom access denied handler to return 403 JSON
+        http.exceptionHandling(ex -> ex.accessDeniedHandler(accessDeniedHandler()));
 
         return http.build();
     }

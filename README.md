@@ -1,5 +1,10 @@
 # SmartLeader — Hub de Produtividade e Bem-Estar no Trabalho Híbrido
 
+**Integrantes**
+- RM 557323 - Carlos Eduardo Pacheco
+- RM 558514 - Pedro Augusto Costa Ladeira
+- RM 559213 - João Pedro Amorim
+
 SmartLeader é uma plataforma (MVP) que combina inteligência artificial e gestão colaborativa para promover bem-estar e produtividade em equipes em modelo híbrido ou remoto. Este repositório contém a implementação do backend (Spring Boot), templates Thymeleaf para demonstração, integração com OpenAI (opcional), suporte a mensageria e cache.
 
 ---
